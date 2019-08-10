@@ -3,6 +3,8 @@
 
 於是晚上就自己擼一個吧。
 
+![4444.gif](https://i.loli.net/2019/08/11/HOV75JberAgEI1B.gif)
+
 # 安裝
 
 本工具目前僅支持Python3，Python2的需要修改一下代碼，比如用[six](https://github.com/benjaminp/six)做一些封裝。

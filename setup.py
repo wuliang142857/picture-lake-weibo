@@ -23,8 +23,10 @@ install_reqs = parse_requirements(os.path.join(here, "requirements.txt"),
                                   session=download.PipSession())
 setup(
     name='picture-lake-weibo',
-    version='0.0.1',
+    version='0.0.2',
     description='把新浪微博作爲圖床',
+    long_description=open(os.path.join(here, "README.md"), encoding="utf-8").read(),
+    long_description_content_type="text/markdown",
     author='wuliang142857',
     author_email='wuliang142857@gmail.com',
     url='https://github.com/wuliang142857/picture-lake-weibo',
