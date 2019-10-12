@@ -66,3 +66,42 @@ picture-lake-weibo upload ../../test.jpg
 picture-lake-weibo upload /home/admin/test.jpg
 ````
 
+# 配置
+默認的配置在`$HOME/.picture-lake-weibo.json`下，類似如此：
+````json
+{
+    "hostname": "tva1.sinaimg.cn",
+    "protocol": "https",
+    "size": "large",
+    "username": "15912345678",
+    "password": "1234567"
+}
+````
+因此除了登陸新浪微博的用戶名和密碼外，我們還可以對圖片的域名、協議、尺寸做配置。
+
+## 協議(protocol)
+協議支持兩種：
+ - http
+ - https
+
+## 域名(hostname)
+域名支持：
+ - tva1.sinaimg.cn
+ - tvax1.sinaimg.cn
+ - ww1.sinaimg.cn
+ - ws1.sinaimg.cn
+ - wx1.sinaimg.cn
+
+## 尺寸
+尺寸支持:
+ - large(原圖)
+ - mw690(690高)
+ - bmiddle(中图)
+ - small(小图)
+ - mw2048(超大)
+ - mw1024(超大)
+ - orj480
+ - orj480
+ - thumb150(缩略图)
+ - square
+
