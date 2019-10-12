@@ -17,7 +17,8 @@ import http.cookiejar
 import binascii
 import re
 from bs4 import BeautifulSoup
-
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 class Weibo:
 
