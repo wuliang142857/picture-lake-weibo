@@ -145,7 +145,7 @@ class Weibo:
             print("Login Error!")
 
     def uploadPicture(self, picture):
-        uploadUrl = "http://picupload.service.weibo.com/interface/pic_upload.php?mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=&nick=0&marks=1&app=miniblog"
+        uploadUrl = "https://picupload.weibo.com/interface/pic_upload.php?cb=https%3A%2F%2Fweibo.com%2Faj%2Fstatic%2Fupimgback.html%3F_wv%3D5%26callback%3DSTK_ijax_157089425618561&mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=1&nick=0&marks=0&app=miniblog&s=rdxt&pri=null&file_source=1"
         b = base64.b64encode(open(picture, "rb").read())
         data = urllib.parse.urlencode({'b64_data': b}).encode("utf-8")
         headers = {
@@ -154,8 +154,5 @@ class Weibo:
         }
         requests2 = urllib.request.Request(uploadUrl, headers=headers)
         reqopen2 = urllib.request.urlopen(requests2, data=data)
-        reqread2 = reqopen2.read().decode("GBK")
-        result = re.sub(r"<meta.*</script>", "", reqread2, flags=re.S)
-        image_result = json.loads(result)
-        image_id = image_result.get('data').get('pics').get('pic_1').get('pid')
-        return image_id
+        o = urllib.parse.urlparse(reqopen2.url)
+        return urllib.parse.parse_qs(o.query)["pid"][0]
