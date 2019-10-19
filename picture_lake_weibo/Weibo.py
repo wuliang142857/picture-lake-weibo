@@ -10,6 +10,7 @@
 import urllib
 import urllib.request
 import urllib.parse
+import requests
 import base64
 import rsa
 import json
@@ -20,11 +21,24 @@ from bs4 import BeautifulSoup
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
+# https://stackoverflow.com/questions/7160737/python-how-to-validate-a-url-in-python-malformed-or-not
+IS_URL_PATTERN = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+def isUrl(i):
+    return re.match(IS_URL_PATTERN, i) is not None
+
 class Weibo:
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
+        self.isLogined = False
 
     def enableCookies(self):
         # 建立一个cookies 容器
@@ -140,13 +154,18 @@ class Weibo:
             for i in bfind_nick_uid[2]:
                 nickName = nick_re.search(i.strip()).group().split('=')[1][1:-2]
                 userId = uin_re.search(i).group().split('=')[1][1:-2]
+            self.isLogined = True
             return (nickName, userId)
         except IndexError:
             print("Login Error!")
 
     def uploadPicture(self, picture):
         uploadUrl = "https://picupload.weibo.com/interface/pic_upload.php?cb=https%3A%2F%2Fweibo.com%2Faj%2Fstatic%2Fupimgback.html%3F_wv%3D5%26callback%3DSTK_ijax_157089425618561&mime=image%2Fjpeg&data=base64&url=0&markpos=1&logo=1&nick=0&marks=0&app=miniblog&s=rdxt&pri=null&file_source=1"
-        b = base64.b64encode(open(picture, "rb").read())
+        b = None
+        if isUrl(picture):
+            b = base64.b64encode(requests.get(picture).content)
+        else:
+            b = base64.b64encode(open(picture, "rb").read())
         data = urllib.parse.urlencode({'b64_data': b}).encode("utf-8")
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36",

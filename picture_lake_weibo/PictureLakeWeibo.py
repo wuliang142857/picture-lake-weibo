@@ -17,6 +17,7 @@ import sys
 
 from picture_lake_weibo.Weibo import Weibo
 from picture_lake_weibo.ConfigWrapper import Config, ConfigWrapper
+from picture_lake_weibo.MarkdownReplacer import MarkdownReplacer
 
 USAGE = '''
 picture-lake-weibo: 把微博作爲圖床
@@ -42,24 +43,58 @@ def login():
     else:
         print("登陸失敗!", file=sys.stderr)
 
-
 def upload(picturePatterns):
+    for picturePattern in picturePatterns:
+        for filepath in glob(picturePattern):
+            filepath = os.path.realpath(os.path.expanduser(filepath))
+            remoteUrl = uploadOne(filepath)
+            if remoteUrl is None:
+                print("上傳失敗 => %s" % filepath, file=sys.stderr)
+            else:
+                print("上傳成功 => %s, %s" % (filepath, remoteUrl))
+
+def uploadOne(picture):
     configWrapper: ConfigWrapper = ConfigWrapper()
     if configWrapper.config.username is None or configWrapper.config.password is None:
         print("請先登錄新浪微博", file=sys.stderr)
         return
     weiboClient = Weibo(configWrapper.config.username, configWrapper.config.password)
-    weiboClient.login()
-    for picturePattern in picturePatterns:
-        for filepath in glob(picturePattern):
+    if not weiboClient.isLogined:
+        weiboClient.login()
+
+    pictureId = weiboClient.uploadPicture(picture)
+    if pictureId is None:
+        return None
+    else:
+        remoteUrl = configWrapper.config.protocol + "://" + configWrapper.config.hostname + "/" + configWrapper.config.size + "/" + pictureId
+        return remoteUrl
+
+def replace(markdownPatterns):
+    markdownReplacer = MarkdownReplacer()
+
+    for markdownPattern in markdownPatterns:
+        for filepath in glob(markdownPattern):
             filepath = os.path.realpath(os.path.expanduser(filepath))
-            pictureId = weiboClient.uploadPicture(filepath)
-            if pictureId is None:
-                print("上傳失敗 => %s" % filepath, file=sys.stderr)
+            images = markdownReplacer.getImages(filepath)
+            if len(images) <= 0:
                 continue
-            else:
-                remoteUrl = configWrapper.config.protocol + "://" + configWrapper.config.hostname + "/" + configWrapper.config.size + "/" + pictureId
-                print("上傳成功 => %s, %s" % (filepath, remoteUrl))
+            print("Markdown File => %s, images: %s" % (filepath, images))
+            cache = {}
+            for image in images:
+                remoteUrl = uploadOne(image)
+                if remoteUrl is None:
+                    print("替換失敗 => %s" % filepath, file=sys.stderr)
+                    break
+                cache[image] = remoteUrl
+                print("%s => %s" % (image, remoteUrl))
+            fin = open(filepath, "r")
+            content = fin.read()
+            fin.close()
+            for image in cache.keys():
+                content = content.replace(image, cache[image])
+            fout = open(filepath, "w")
+            fout.write(content)
+            fout.close()
 
 def main():
     argumentParser = ArgumentParser(
@@ -69,19 +104,21 @@ def main():
     )
     argumentParser.add_argument("command",
                                 type=str,
-                                choices=["login", "upload"],
-                                help="運行命令，目前支持: login upload"
+                                choices=["login", "upload", "replace"],
+                                help="運行命令，目前支持: login upload replace"
                                 )
-    argumentParser.add_argument("pictures",
+    argumentParser.add_argument("patterns",
                                 nargs="*",
                                 default=[],
-                                help="需要上傳的圖片"
+                                help="需要上傳的圖片/需要替換圖片的Markdown文件"
                                 )
     args = argumentParser.parse_args()
     if args.command == "login":
         login()
     elif args.command == "upload":
-        upload(args.pictures)
+        upload(args.patterns)
+    elif args.command == "replace":
+        replace(args.patterns)
     else:
         print("未知的參數", file=sys.stderr)
 
