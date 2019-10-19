@@ -66,6 +66,11 @@ picture-lake-weibo upload ../../test.jpg
 picture-lake-weibo upload /home/admin/test.jpg
 ````
 
+## 替換Markdown文件中的圖片
+````bash
+picture-lake-weibo replace XXX.md
+````
+
 # 配置
 默認的配置在`$HOME/.picture-lake-weibo.json`下，類似如此：
 ````json
@@ -105,3 +110,16 @@ picture-lake-weibo upload /home/admin/test.jpg
  - thumb150(缩略图)
  - square
 
+## 代理
+可以在`$HOME/.picture-lake-weibo.json`中增加`proxy`選項，以支持代理服務器
+````json
+{
+    "proxy": "http://127.0.0.1:8888"
+}
+````
+socks5也一樣：
+````json
+{
+    "proxy": "sock5://127.0.0.1:1080"
+}
+````

@@ -9,6 +9,8 @@
 
 import os
 import json
+import urllib.parse
+import urllib.request
 
 class Config:
     def __init__(self):
@@ -17,6 +19,8 @@ class Config:
         self.protocol = "https"
         self.hostname = "tva1.sinaimg.cn"
         self.size = "large"
+        # 代理服務器地址，可選
+        self.proxy = None
 
     def toJSON(self):
         return json.dumps(self.__dict__, ensure_ascii=False, indent=4, sort_keys=True)
@@ -34,6 +38,11 @@ class ConfigWrapper:
         self.config: Config = Config()
         if os.path.exists(configFile):
             self.config = self.deserialize()
+        if self.config.proxy is not None:
+            parsed = urllib.parse.urlparse(self.config.proxy)
+            proxySupport = urllib.request.ProxyHandler({parsed.scheme: parsed.netloc})
+            opener = urllib.request.build_opener(proxySupport)
+            urllib.request.install_opener(opener)
 
     def serialize(self):
         fout = open(self.configFile, "w")
