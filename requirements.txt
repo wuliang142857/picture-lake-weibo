@@ -1,4 +1,6 @@
+requests==2.22.0
 pip==19.0.3
 rsa==4.0
 setuptools==40.8.0
-beautifulsoup4==4.8.0
+beautifulsoup4==4.8.1
+Markdown==3.1.1

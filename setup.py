@@ -27,7 +27,7 @@ else:
 
 setup(
     name='picture-lake-weibo',
-    version='0.0.3',
+    version='0.0.4',
     description='把新浪微博作爲圖床',
     long_description=open(os.path.join(here, "README.md"), encoding="utf-8").read(),
     long_description_content_type="text/markdown",
