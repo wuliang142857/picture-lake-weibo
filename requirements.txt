@@ -1,4 +1,4 @@
-rsa==4.0
+rsa==4.7
 requests==2.22.0
 beautifulsoup4==4.8.1
 Markdown==3.1.1
